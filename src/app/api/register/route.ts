@@ -6,15 +6,12 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(req: NextRequest, res: NextResponse) {
 
     if (req.method != 'POST') {
-
-        console.log("It wasn't a POST Request.");
         return new Response("Hello", {
             status: 405
         })
     }
-
+    
     try {
-
         const { email, username, password } = await req.json();
         console.log(email);
         console.log(username);
