@@ -24,7 +24,7 @@ export default NextAuth({
                     throw new Error("Email not Found");
                 }
 
-                const user = await prismadb.user.findUnique({
+                const user = await prismadb.user.findFirst({
                     where: {
                         email: credentials.email,
                     }
@@ -53,7 +53,7 @@ export default NextAuth({
         strategy: 'jwt'
     },
     jwt: {
-        secret:process.env.NEXTAUTH_JWT_SECRET,
+        secret: process.env.NEXTAUTH_JWT_SECRET,
     },
     secret: process.env.NEXTAUTH_SECRET,
 })

@@ -1,58 +1,61 @@
 import bcrypt from "bcrypt";
-import { NextApiRequest, NextApiResponse, NextApiHandler } from "next";
-import prismadb from "@/lib/prismadb"
-import { NextRequest, NextResponse } from "next/server";
+import { NextApiRequest, NextApiResponse } from "next";
+import prismadb from "@/lib/prismadb";
+import { NextRequest } from "next/server";
 
-export async function POST(req: NextRequest, res: NextResponse) {
+export async function POST(req: NextRequest) {
+    // checking if  hte request was a POST request?
+    // console.clear();
+    console.log("you are in route.ts");
 
-    if (req.method != 'POST') {
+    if (req.method != "POST") {
         return new Response("Hello", {
-            status: 405
-        })
+            status: 405,
+        });
     }
-    
+
     try {
         const { email, username, password } = await req.json();
+
         console.log(email);
         console.log(username);
         console.log(password);
 
-        const existingUser = await prismadb.user.findFirst({
+        const existingUser = await prismadb.user.count({
             where: {
-                email: email,
-            }
+                email: email.toString(),
+            },
         });
 
-        console.log("This ran 2!");
+        console.log("checked existing user");
 
-        if (existingUser) {
+        if (existingUser != 0) {
             return new Response("Email exists already.", {
-                status: 422
-            })
+                status: 422,
+            });
         }
+
         console.log("This ran 3!");
 
         const hashedPassword = await bcrypt.hash(password, 12);
-
         const user = await prismadb.user.create({
             data: {
-                email: email,
-                username: username,
+                email: email.toString(),
+                username: username.toString(),
                 hashedPassword,
-                image: '',
+                image: "",
                 emailVerified: new Date(),
-            }
+            },
         });
 
         return new Response("Register Successful", {
-            status: 200
-        })
+            status: 200,
+        });
 
     } catch (error) {
         console.log(error);
         return new Response("Register Failed", {
-            status: 400
-        })
+            status: 400,
+        });
     }
-
 }

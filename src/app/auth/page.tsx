@@ -1,10 +1,14 @@
 "use client"
 import React, { useCallback, useState } from 'react'
 import Input from '@/components/Input'
-import { register } from 'module';
 import axios from 'axios';
+import { signIn } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 
 const AuthPage = () => {
+
+    const router  = useRouter();
+
     const [email, setEmail] = useState('');
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -15,22 +19,44 @@ const AuthPage = () => {
         setVarient((currentVarient) => currentVarient == "login" ? "register" : "login")
     }, [])
 
+    /* 
+    Register Handler 
+    Calling the page in the "api/register" 
+    */
     const register = useCallback(async () => {
-        console.log("The List\n");
+        console.log("The List is printied in page.tsx\n");
         console.log(email);
         console.log(username);
         console.log(password);
 
         try {
-            await axios.post('/api/register', {
+            const response = await axios.post('http://localhost:3000/api/register', {
                 email,
                 username,
                 password
             });
+
+            console.log(response.data);
+            router.push("/home");
+            
         } catch (error) {
             console.log("Hello")
+            console.log("There was an error.\n");
         }
+
     }, [email, username, password])
+
+
+    const login = useCallback(async () => {
+        try {
+            await signIn('credentials', {
+                email, password, redirect: false, callbackUrl: '/'
+            });
+        } catch (error) {
+            console.log(error);
+
+        }
+    }, [email, password])
 
 
     return (
@@ -54,6 +80,7 @@ const AuthPage = () => {
                                     id='email'
                                     label='Email'
                                     value={email}
+                                    name='email'
                                     onchange={(event: any) => setEmail(event.target.value)}
                                 />
                             )}
@@ -62,6 +89,7 @@ const AuthPage = () => {
                                 type='username'
                                 id='username'
                                 label='Username'
+                                name='username'
                                 value={username}
                                 onchange={(event: any) => setUsername(event.target.value)}
                             />
@@ -70,11 +98,12 @@ const AuthPage = () => {
                                 id='password'
                                 label='Password'
                                 value={password}
+                                name='password'
                                 onchange={(event: any) => setPassword(event.target.value)}
                             />
                         </div>
 
-                        <button onClick={register} className='bg-red-600 text-white rounded mt-5 p-2 w-full text-lg hover:bg-red-900 duration-150'>
+                        <button onClick={varient == 'login' ? login : register} className='bg-red-600 text-white rounded mt-5 p-2 w-full text-lg hover:bg-red-900 duration-150'>
                             {varient == "register" ? "Register" : "Login"}
                         </button>
 
